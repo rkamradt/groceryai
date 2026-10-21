@@ -1,0 +1,78 @@
+spring:
+  application:
+    name: groceryai
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/groceryai}
+    username: ${SPRING_DATASOURCE_USERNAME:groceryai}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - openid
+              - email
+              - profile
+              - https://www.googleapis.com/auth/spreadsheets
+        provider:
+          google:
+            issuer-uri: https://accounts.google.com
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 21MB
+
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+# Trust X-Forwarded-* headers from the Cloudflare tunnel
+server:
+  port: 8080
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+# USDA FoodData Central
+usda:
+  api:
+    key: ${USDA_API_KEY:DEMO_KEY}
+    base-url: https://api.nal.usda.gov/fdc/v1
+
+groceryai:
+  anthropic:
+    api-key: ${ANTHROPIC_API_KEY}
+    model: ${ANTHROPIC_MODEL:claude-haiku-4-5-20251001}
+  google:
+    sheet-id: ${SHEET_ID}
+    sheet-tab: ${SHEET_TAB:GroceryAI}
+
+logging:
+  level:
+    com.rkamradt.groceryai: INFO

@@ -1,0 +1,19 @@
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+
+# Spring Boot
+application-local.properties
+
+# Node / frontend
+nutrition-ui/node_modules/
+nutrition-ui/dist/
+nutrition-ui/.env
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
