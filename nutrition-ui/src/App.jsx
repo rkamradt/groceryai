@@ -9,10 +9,19 @@ import styles from './App.module.css'
 
 export default function App() {
   const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getMe().then(setUser).catch(() => setUser({ signedIn: false }))
+    getMe()
+      .then(u => {
+        setUser(u)
+        if (!u.signedIn) signIn()
+      })
+      .catch(() => signIn())
+      .finally(() => setLoading(false))
   }, [])
+
+  if (loading) return null
 
   return (
     <div className={styles.app}>
@@ -22,19 +31,13 @@ export default function App() {
           <span className={styles.tagline}>Weekly Nutrition Tracker</span>
         </div>
         <div className={styles.headerRight}>
-          {user?.signedIn ? (
-            <>
-              {user.picture && (
-                <img className={styles.avatar} src={user.picture} alt={user.name} />
-              )}
-              <span className={styles.userName}>{user.name}</span>
-              <button className={styles.btnSignOut} onClick={signOut}>Sign out</button>
-            </>
-          ) : (
-            <button className={styles.btnSignIn} onClick={signIn}>
-              Sign in with Google
-            </button>
+          {user?.picture && (
+            <img className={styles.avatar} src={user.picture} alt={user.name} />
           )}
+          {user?.name && (
+            <span className={styles.userName}>{user.name}</span>
+          )}
+          <button className={styles.btnSignOut} onClick={signOut}>Sign out</button>
         </div>
       </header>
       <main className={styles.main}>

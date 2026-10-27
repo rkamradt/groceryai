@@ -26,6 +26,7 @@ async function request(path, options = {}) {
 
 export async function getMe() {
   const res = await fetch(`${BASE_URL}/api/me`, { credentials: 'include' })
+  if (!res.ok) throw new Error('Failed to fetch user info')
   return res.json()
 }
 
