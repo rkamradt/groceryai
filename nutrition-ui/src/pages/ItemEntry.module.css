@@ -35,6 +35,22 @@
 .btnPrimary:hover:not(:disabled) { opacity: 0.85; }
 .btnPrimary:disabled { opacity: 0.5; }
 
+.btnUpload {
+  background: var(--gold);
+  color: var(--dark);
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.btnUpload:hover { opacity: 0.85; }
+
 .btnSecondary {
   background: transparent;
   color: var(--dark);

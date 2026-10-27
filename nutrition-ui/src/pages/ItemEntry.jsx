@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import { saveItems } from '../api/nutritionApi'
 import styles from './ItemEntry.module.css'
 
@@ -69,6 +69,9 @@ export default function ItemEntry() {
       <div className={styles.topBar}>
         <h1 className={styles.title}>Add Grocery Items</h1>
         <div className={styles.actions}>
+          <Link to={`/upload/${weekId}`} className={styles.btnUpload}>
+            📷 Upload Receipt
+          </Link>
           <button className={styles.btnSecondary} onClick={addRow} type="button">
             + Add Row
           </button>
