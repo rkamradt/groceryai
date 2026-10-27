@@ -45,6 +45,9 @@ public class AnthropicService {
     @Value("${groceryai.anthropic.model}")
     private String model;
 
+    @Value("${groceryai.anthropic.max-tokens}")
+    private int maxTokens;
+
     private final RestClient restClient;
 
     public AnthropicService() {
@@ -62,7 +65,7 @@ public class AnthropicService {
 
         Map<String, Object> request = Map.of(
             "model", model,
-            "max_tokens", 2048,
+            "max_tokens", maxTokens,
             "tools", List.of(toolDefinition()),
             "tool_choice", Map.of("type", "tool", "name", "extract_grocery_receipt"),
             "messages", List.of(Map.of(

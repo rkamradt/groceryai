@@ -25,6 +25,9 @@ SHEET_TAB=${SHEET_TAB:-GroceryAI}
 read -rp "Anthropic model [claude-haiku-4-5-20251001]: " ANTHROPIC_MODEL
 ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-haiku-4-5-20251001}
 
+read -rp "Anthropic max tokens [4096]: " ANTHROPIC_MAX_TOKENS
+ANTHROPIC_MAX_TOKENS=${ANTHROPIC_MAX_TOKENS:-4096}
+
 read -rp "USDA FoodData Central API Key [DEMO_KEY]: " USDA_API_KEY
 USDA_API_KEY=${USDA_API_KEY:-DEMO_KEY}
 
@@ -50,6 +53,7 @@ kubectl create secret generic "$SECRET_NAME" \
     --from-literal=SHEET_ID="$SHEET_ID" \
     --from-literal=SHEET_TAB="$SHEET_TAB" \
     --from-literal=ANTHROPIC_MODEL="$ANTHROPIC_MODEL" \
+    --from-literal=ANTHROPIC_MAX_TOKENS="$ANTHROPIC_MAX_TOKENS" \
     --from-literal=USDA_API_KEY="$USDA_API_KEY" \
     --dry-run=client -o yaml | kubectl apply -f -
 
