@@ -4,8 +4,8 @@ import { extractReceipt, confirmReceipt } from '../api/nutritionApi'
 import styles from './ReceiptUpload.module.css'
 
 const CATEGORIES = [
-  '', 'Proteins', 'Dairy', 'Produce-Vegetables', 'Produce-Fruits',
-  'Grains & Bread', 'Legumes & Beans', 'Nuts & Seeds',
+  '', 'Proteins (Meat / Fish / Poultry)', 'Dairy', 'Produce – Vegetables',
+  'Produce – Fruits', 'Grains & Bread', 'Legumes & Beans', 'Nuts & Seeds',
   'Oils & Fats', 'Snacks & Sweets', 'Beverages',
 ]
 
@@ -37,7 +37,7 @@ export default function ReceiptUpload() {
       setItems((result.items ?? []).map(item => ({
         name: item.name,
         price: item.lineTotal ?? item.unitPrice ?? null,
-        category: '',
+        category: item.category ?? '',
         servingSizeG: 100,
         servingsPerWeek: 1,
       })))

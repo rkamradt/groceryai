@@ -1,6 +1,7 @@
 package com.rkamradt.groceryai.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rkamradt.groceryai.dto.ExtractedGroceryItem;
 import com.rkamradt.groceryai.dto.ExtractedGroceryReceipt;
 import com.rkamradt.groceryai.dto.GroceryItemRequest;
 import com.rkamradt.groceryai.dto.ItemsRequest;
@@ -72,8 +73,10 @@ public class ReceiptController {
             file.getOriginalFilename(), file.getSize(), auth.getName());
 
         byte[] processed = imageService.process(file.getBytes(), file.getContentType());
-        ExtractedGroceryReceipt result = anthropicService.extract(processed);
-        return ResponseEntity.ok(result);
+        ExtractedGroceryReceipt raw = anthropicService.extract(processed);
+        var enriched = anthropicService.enrichItems(raw.items(), raw.storeName());
+        return ResponseEntity.ok(new ExtractedGroceryReceipt(
+            raw.storeName(), raw.date(), enriched, raw.total(), raw.confidenceNotes()));
     }
 
     /**

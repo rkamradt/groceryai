@@ -8,5 +8,6 @@ public record ExtractedGroceryItem(
         Double unitPrice,
         Double quantity,
         String unit,
-        Double lineTotal
+        Double lineTotal,
+        String category
 ) {}
