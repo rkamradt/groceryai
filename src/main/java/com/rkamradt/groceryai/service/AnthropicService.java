@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -44,7 +45,16 @@ public class AnthropicService {
     @Value("${groceryai.anthropic.model}")
     private String model;
 
-    private final RestClient restClient = RestClient.create();
+    private final RestClient restClient;
+
+    public AnthropicService() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(10_000);  // 10 s to establish connection
+        factory.setReadTimeout(120_000);    // 2 min for Claude to respond
+        this.restClient = RestClient.builder()
+            .requestFactory(factory)
+            .build();
+    }
     private final ObjectMapper mapper = new ObjectMapper();
 
     public ExtractedGroceryReceipt extract(byte[] jpegBytes) {
@@ -71,14 +81,22 @@ public class AnthropicService {
             ))
         );
 
-        String responseBody = restClient.post()
-            .uri(API_URL)
-            .header("x-api-key", apiKey)
-            .header("anthropic-version", API_VERSION)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .body(request)
-            .retrieve()
-            .body(String.class);
+        log.info("Calling Anthropic API: model={} imageBytes={}", model, jpegBytes.length);
+        String responseBody;
+        try {
+            responseBody = restClient.post()
+                .uri(API_URL)
+                .header("x-api-key", apiKey)
+                .header("anthropic-version", API_VERSION)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .body(request)
+                .retrieve()
+                .body(String.class);
+        } catch (Exception e) {
+            log.error("Anthropic API call failed: {}", e.getMessage(), e);
+            throw new RuntimeException("Anthropic API call failed: " + e.getMessage(), e);
+        }
+        log.info("Anthropic API responded: {} chars", responseBody == null ? 0 : responseBody.length());
 
         return parseToolUseResponse(responseBody);
     }
