@@ -4,6 +4,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -23,7 +28,6 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/api/me").permitAll()
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
             )
@@ -32,6 +36,7 @@ public class SecurityConfig {
                 .csrfTokenRequestHandler(csrfHandler)
             )
             .oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(ui -> ui.oidcUserService(oidcUserService()))
                 .defaultSuccessUrl("/", true)
                 .failureHandler((req, res, ex) -> {
                     log.error("OAuth2 login failed: {}", ex.getMessage(), ex);
@@ -51,8 +56,31 @@ public class SecurityConfig {
                         res.sendRedirect("/oauth2/authorization/google");
                     }
                 })
+                .accessDeniedHandler((req, res, e) ->
+                    res.sendError(403, "Forbidden — must sign in with a @kamradtfamily.net account"))
             );
 
         return http.build();
+    }
+
+    /**
+     * Enforce @kamradtfamily.net domain: belt-and-suspenders on top of the
+     * "Internal" consent screen. Rejects if hd != kamradtfamily.net OR
+     * email_verified != true.
+     */
+    @Bean
+    public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+        OidcUserService delegate = new OidcUserService();
+        return request -> {
+            OidcUser user = delegate.loadUser(request);
+            Boolean emailVerified = user.getAttribute("email_verified");
+            String email = user.getEmail();
+            if (!Boolean.TRUE.equals(emailVerified)
+                    || email == null
+                    || !email.endsWith("@kamradtfamily.net")) {
+                throw new OAuth2AuthenticationException("access_denied");
+            }
+            return user;
+        };
     }
 }
