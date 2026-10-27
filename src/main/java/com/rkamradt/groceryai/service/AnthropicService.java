@@ -96,7 +96,7 @@ public class AnthropicService {
             log.error("Anthropic API call failed: {}", e.getMessage(), e);
             throw new RuntimeException("Anthropic API call failed: " + e.getMessage(), e);
         }
-        log.info("Anthropic API responded: {} chars", responseBody == null ? 0 : responseBody.length());
+        log.info("Anthropic API responded: {} chars — body: {}", responseBody == null ? 0 : responseBody.length(), responseBody);
 
         return parseToolUseResponse(responseBody);
     }
